@@ -1,0 +1,111 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Browser Application</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+ </head>
+ <body class="bg-yellow-400">
+    <div class="text-center p-4">
+        <h1 class="text-5xl font-bold">Game Browser</h1>
+        <p class="text-2xl font-semibold">Explore your favourite games!</p>
+
+        <select class="mt-10 bg-white border-2 border-gray-800 text-gray-800 font-semibold text-lg rounded-xl px-15 py-3 shadow-md">
+            <option value=""></option>
+           <option value="shooter">Shooter</option>
+           <option value="rpg">RPG</option>
+           <option value="mmorpg">MMORPG</option>
+           <option value="battle">Battle Royale</option>
+          <option value="stratergy">Strategy</option>
+          <option value="arpg">ARPG</option>
+          <option value="fight">Fighting</option>
+     </select>
+       <div id="display" class="grid grid-cols-4 gap-6 p-5">
+           
+       </div>
+       <h1 class="text-5xl font-bold text-center">My Favourites</h1>
+       <div id="favourites" class="grid grid-cols-4 gap-6 mt-10">
+        
+        
+       </div>
+    </div>
+ </body>
+ <script>
+    let games=null
+    let favGameList =[] || JSON.parse(localStorage.getItem('data'))
+    const getData=async()=>{
+       try {
+         let apiResponse= await fetch('https://www.freetogame.com/api/games')
+         games = await apiResponse.json()
+        console.log(games)
+        let card=document.getElementById('display')
+        games.map((eachGame)=>(
+            card.innerHTML+=`<div class="bg-white rounded-xl shadow-xl p-5 transition hover:scale-110">
+               <img src="${eachGame.thumbnail}" alt="${eachGame.title}" class="size-50 mx-auto">
+               <div>
+               <h3 class="text-xl font-semibold">${eachGame.title}</h3>
+               <p class="text-lg text-gray-600">${eachGame.genre}</p>
+               <p class="text-lg ">${eachGame.platform}</p>
+               <p class="text-lg ">${eachGame.release_date}</p>
+               <button onclick="onFavBtnClick('${eachGame.title}')" class="px-10 py-2 text-sm font-bold text-white bg-green-500 rounded-xl transition active:scale-95 hover:bg-green-400">Add to Favourites</button>
+               </div>
+           </div>`
+        ))
+       } catch (error) {
+        console.log(error)
+        alert('api call failed')
+       }
+    }
+    getData()
+
+    const onFavBtnClick=async(name)=>{
+        favGame=games.find((eachGame)=>eachGame.title==name)
+        if(favGameList.includes(favGame)){
+            alert('already saved')
+        }else{
+            favGameList.unshift(favGame)
+        
+        
+        console.log(favGameList)
+       
+        localStorage.setItem('data', JSON.stringify(favGameList))
+
+        alert('added to favourites')
+        }
+        showFav()
+
+    }
+
+    const showFav=()=>{
+       let showFavGames=JSON.parse(localStorage.getItem('data'))
+        
+        let favDisplay=document.getElementById('favourites')
+        favDisplay.innerHTML = "";
+        showFavGames.map((eachGame)=>(
+            favDisplay.innerHTML+=`<div class="bg-white rounded-xl shadow-xl p-5 transition hover:scale-110">
+               <img src="${eachGame.thumbnail}" alt="${eachGame.title}" class="size-50 mx-auto">
+               <div>
+               <h3 class="text-xl font-semibold">${eachGame.title}</h3>
+               <button onclick="onRemoveBtnClick('${eachGame.title}')" class="px-10 py-2 text-sm font-bold text-white bg-red-500 rounded-xl transition active:scale-95 hover:bg-red-400">Remove</button>
+               </div>
+           </div>`
+        ))
+
+    }
+    showFav()
+
+    const onRemoveBtnClick=async(name)=>{
+         showFavGames=JSON.parse(localStorage.getItem('data'))
+         let filteredData = showFavGames.filter((eachGame)=>eachGame.title!=name)
+         localStorage.setItem('data',JSON.stringify(filteredData))
+        alert('deleted')
+        showFav()
+
+    }
+
+
+ </script>
+ </html>
+ 
